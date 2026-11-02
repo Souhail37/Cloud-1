@@ -1,0 +1,12 @@
+---
+- name: Wordpress Configuration
+  hosts: wordpress_hosts
+  tasks:
+    - name: Create Cloud-1 lab Directory
+      ansible.builtin.file:
+        path: /tmp/cloud1-checkmode-lab
+        state: directory
+    - name: Ensure curl is installed
+      ansible.builtin.apt:
+        name: curl
+        state: present
