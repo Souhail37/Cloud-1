@@ -1,11 +1,7 @@
 ---
-- name: Wordpress Configuration
+- name: Cloud-1 Lab Configuration
   hosts: wordpress_hosts
   tasks:
-    - name: Create Cloud-1 lab Directory
-      ansible.builtin.file:
-        path: /tmp/cloud1-checkmode-lab
-        state: directory
     - name: Ensure curl is installed
       ansible.builtin.apt:
         name: curl
@@ -19,13 +15,14 @@
         name: docker
         types: deb
         uris: https://download.docker.com/linux/ubuntu
-        suites: "{{ ansible_distribution_release }}"
+        suites: "{{ ansible_facts['distribution_release'] }}"
         components: stable
         signed_by: https://download.docker.com/linux/ubuntu/gpg
         state: present
     - name: Refresh APT package cache
       ansible.builtin.apt:
         update_cache: true
+        cache_valid_time: 3600
     - name: Install Docker Engine and Compose
       ansible.builtin.apt:
         name:
@@ -34,4 +31,18 @@
           - containerd.io
           - docker-buildx-plugin
           - docker-compose-plugin
+        state: present
+    - name: Create Cloud-1 deployment Directory
+      ansible.builtin.file:
+        path: /opt/cloud-1
+        state: directory
+        mode: '0755'
+    - name: Deploy Docker Compose Configuration
+      ansible.builtin.copy:
+        src: docker/compose.yaml
+        dest: /opt/cloud-1/compose.yaml
+        mode: '0644'
+    - name: start Cloud-1 Docker Compose services
+      community.docker.docker_compose_v2:
+        project_src: /opt/cloud-1
         state: present
