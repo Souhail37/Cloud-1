@@ -1,9 +1,0 @@
-services:
-  nginx:
-    image: nginx:alpine
-    networks:
-      - frontend
-
-networks:
-  frontend:
-    driver: bridge

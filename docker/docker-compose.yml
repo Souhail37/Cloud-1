@@ -1,0 +1,35 @@
+services:
+  nginx:
+    image: nginx:alpine
+    networks:
+      - frontend
+
+  mariadb:
+    image: mariadb:11.8
+    networks:
+      - backend
+    volumes:
+      - mariadb_data:/var/lib/mysql
+    environment:
+      MARIADB_ROOT_PASSWORD_FILE: /run/secrets/db_root_password
+      MARIADB_DATABASE: wordpress
+      MARIADB_USER: wordpress
+      MARIADB_PASSWORD_FILE: /run/secrets/db_password
+    secrets:
+      - db_root_password
+      - db_password
+
+networks:
+  frontend:
+    driver: bridge
+  backend:
+    driver: bridge
+
+volumes:
+  mariadb_data:
+
+secrets:
+  db_root_password:
+    file: ./secrets/db_root_password
+  db_password:
+    file: ./secrets/db_password

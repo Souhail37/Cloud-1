@@ -39,9 +39,32 @@
         mode: '0755'
     - name: Deploy Docker Compose Configuration
       ansible.builtin.copy:
-        src: docker/compose.yaml
-        dest: /opt/cloud-1/compose.yaml
+        src: docker/docker-compose.yml
+        dest: /opt/cloud-1/docker-compose.yml
         mode: '0644'
+    - name: Create Cloud-1 secrets directory
+      ansible.builtin.file:
+        path: /opt/cloud-1/secrets
+        state: directory
+        owner: root
+        group: root
+        mode: '0700'
+    - name: Deploy MariaDB root password
+      ansible.builtin.copy:
+        content: "{{ vault_mariadb_root_password }}"
+        dest: /opt/cloud-1/secrets/db_root_password
+        owner: root
+        group: root
+        mode: '0644'
+      no_log: true
+    - name: Deploy MariaDB application password
+      ansible.builtin.copy:
+        content: "{{ vault_mariadb_wordpress_password }}"
+        dest: /opt/cloud-1/secrets/db_password
+        owner: root
+        group: root
+        mode: '0644'
+      no_log: true
     - name: start Cloud-1 Docker Compose services
       community.docker.docker_compose_v2:
         project_src: /opt/cloud-1
