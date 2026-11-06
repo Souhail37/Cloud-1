@@ -65,6 +65,16 @@
         group: root
         mode: '0644'
       no_log: true
+    - name: Create Nginx config directory
+      ansible.builtin.file:
+        path: /opt/cloud-1/nginx
+        state: directory
+        mode: '0755'
+    - name: Deploy Nginx configuration
+      ansible.builtin.copy:
+        src: docker/nginx/default.conf
+        dest: /opt/cloud-1/nginx/default.conf
+        mode: '0644'
     - name: start Cloud-1 Docker Compose services
       community.docker.docker_compose_v2:
         project_src: /opt/cloud-1
