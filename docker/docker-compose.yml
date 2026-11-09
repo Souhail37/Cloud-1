@@ -59,6 +59,17 @@ services:
       WORDPRESS_DB_USER: wordpress
       WORDPRESS_DB_PASSWORD_FILE: /run/secrets/db_password  
 
+  phpmyadmin:
+    image: phpmyadmin:5.2.3-apache
+    networks:
+      - frontend
+      - backend
+    environment:
+      PMA_HOST: mariadb
+      PMA_PORT: 3306
+      PMA_ABSOLUTE_URI: https://cloud1-42project.duckdns.org/phpmyadmin/
+
+
 networks:
   frontend:
     driver: bridge

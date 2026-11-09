@@ -80,6 +80,25 @@
         path: /opt/cloud-1/nginx
         state: directory
         mode: '0755'
+    
+    - name: Install htpasswd utility
+      ansible.builtin.apt:
+        name: apache2-utils
+        state: present
+
+    - name: Create phpMyAdmin access credentials
+      ansible.builtin.command:
+        argv:
+          - htpasswd
+          - -c
+          - -i
+          - -B
+          - /opt/cloud-1/nginx/.htpasswd
+          - "{{ vault_pma_gate_user }}"
+        stdin: "{{ vault_pma_gate_password }}"
+        stdin_add_newline: true
+        creates: /opt/cloud-1/nginx/.htpasswd
+      no_log: true
 
     - name: Deploy Nginx configuration
       ansible.builtin.copy:
