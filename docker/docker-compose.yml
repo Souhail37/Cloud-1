@@ -5,7 +5,7 @@ services:
       - frontend
     volumes:
       - wordpress_data:/var/www/html:ro
-      - ./nginx/default.conf:/etc/nginx/conf.d/default.conf:ro
+      - ./nginx:/etc/nginx/conf.d:ro
       - ./acme:/var/www/acme:ro
       - /etc/letsencrypt:/etc/letsencrypt:ro
     ports:
