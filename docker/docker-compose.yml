@@ -42,6 +42,22 @@ services:
       WORDPRESS_DB_NAME: wordpress
       WORDPRESS_DB_USER: wordpress
       WORDPRESS_DB_PASSWORD_FILE: /run/secrets/db_password
+  
+  wpcli:
+    image: wordpress:cli-php8.3
+    profiles:
+      - tools
+    networks:
+      - backend
+    volumes:
+      - wordpress_data:/var/www/html
+    secrets:
+      - db_password
+    environment:
+      WORDPRESS_DB_HOST: mariadb:3306
+      WORDPRESS_DB_NAME: wordpress
+      WORDPRESS_DB_USER: wordpress
+      WORDPRESS_DB_PASSWORD_FILE: /run/secrets/db_password  
 
 networks:
   frontend:
