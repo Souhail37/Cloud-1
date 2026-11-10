@@ -2,40 +2,10 @@
 - name: Cloud-1 Lab Configuration
   hosts: wordpress_hosts
   tasks:
-    - name: Ensure curl is installed
-      ansible.builtin.apt:
-        name: curl
-        state: present
 
-    - name: Ensure python3-debian is installed
-      ansible.builtin.apt:
-        name: python3-debian
-        state: present
-
-    - name: Configure Docker official APT repository
-      ansible.builtin.deb822_repository:
+    - name: Configure Docker environment
+      ansible.builtin.import_role:
         name: docker
-        types: deb
-        uris: https://download.docker.com/linux/ubuntu
-        suites: "{{ ansible_facts['distribution_release'] }}"
-        components: stable
-        signed_by: https://download.docker.com/linux/ubuntu/gpg
-        state: present
-
-    - name: Refresh APT package cache
-      ansible.builtin.apt:
-        update_cache: true
-        cache_valid_time: 3600
-
-    - name: Install Docker Engine and Compose
-      ansible.builtin.apt:
-        name:
-          - docker-ce
-          - docker-ce-cli
-          - containerd.io
-          - docker-buildx-plugin
-          - docker-compose-plugin
-        state: present
 
     - name: Create Cloud-1 deployment Directory
       ansible.builtin.file:
