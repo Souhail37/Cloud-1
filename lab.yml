@@ -21,65 +21,9 @@
       ansible.builtin.import_role:
         name: tls
     
-    - name: Wait for MariaDB to accept SQL queries
-      ansible.builtin.command:
-        argv:
-          - docker
-          - exec
-          - cloud-1-mariadb-1
-          - sh
-          - -c
-          - 'MYSQL_PWD="$(cat /run/secrets/db_root_password)" mariadb --user=root --execute="SELECT 1"'
-      register: mariadb_ready
-      until: mariadb_ready.rc == 0
-      retries: 40
-      delay: 3
-      changed_when: false
-      no_log: true
-
-    - name: Check Worpress installation
-      ansible.builtin.command:
-        argv:
-          - docker
-          - compose
-          - -f
-          - /opt/cloud-1/docker-compose.yml
-          - run
-          - --rm
-          - --no-deps
-          - -T
-          - wpcli
-          - wp
-          - core
-          - is-installed
-      register: wp_install_status
-      changed_when: false
-      failed_when: wp_install_status.rc not in [0, 1]
-
-    - name: Install Wordpress
-      ansible.builtin.command:
-        argv:
-          - docker
-          - compose
-          - -f
-          - /opt/cloud-1/docker-compose.yml
-          - run
-          - --rm
-          - --no-deps
-          - -T
-          - wpcli
-          - wp
-          - core
-          - install
-          - --url=https://cloud1-42project.duckdns.org
-          - --title=Cloud-1
-          - "--admin_user={{ vault_wp_admin_user }}"
-          - "--admin_email={{ vault_wp_admin_email }}"
-          - --prompt=admin_password
-        stdin: "{{ vault_wp_admin_password }}"
-        stdin_add_newline: true
-      when: wp_install_status.rc == 1
-      no_log: true
+    - name: Configure WordPress
+      ansible.builtin.import_role:
+        name: wordpress
 
   handlers:
     - name: Validate and reload Nginx
