@@ -45,6 +45,22 @@
         mode: '0644'
       notify: Validate and reload Nginx
 
+    - name: Wait for MariaDB to accept SQL queries
+      ansible.builtin.command:
+        argv:
+          - docker
+          - exec
+          - cloud-1-mariadb-1
+          - sh
+          - -c
+          - 'MYSQL_PWD="$(cat /run/secrets/db_root_password)" mariadb --user=root --execute="SELECT 1"'
+      register: mariadb_ready
+      until: mariadb_ready.rc == 0
+      retries: 40
+      delay: 3
+      changed_when: false
+      no_log: true
+
     - name: Check Worpress installation
       ansible.builtin.command:
         argv:
