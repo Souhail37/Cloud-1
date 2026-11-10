@@ -63,7 +63,7 @@
 
 - name: Deploy Nginx configuration
   ansible.builtin.copy:
-    src: "{{ playbook_dir }}/docker/nginx/default.conf"
+    src: "{{ playbook_dir }}/docker/nginx/{{ 'default.conf' if tls_cert.stat.exists else 'bootstrap.conf' }}"
     dest: /opt/cloud-1/nginx/default.conf
     mode: '0644'
   notify: Validate and reload Nginx

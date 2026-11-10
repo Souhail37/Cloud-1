@@ -7,6 +7,12 @@
       ansible.builtin.import_role:
         name: docker
 
+    - name: Check if Cloud-1 TLS certificate exists
+      ansible.builtin.stat:
+        path: /etc/letsencrypt/live/cloud1-42project.duckdns.org/fullchain.pem
+        follow: true
+      register: tls_cert
+
     - name: Deploy Cloud-1 stack
       ansible.builtin.import_role:
         name: stack
@@ -31,6 +37,13 @@
           - --agree-tos
           - --non-interactive
         creates: /etc/letsencrypt/live/cloud1-42project.duckdns.org/fullchain.pem
+
+    - name: Activate Nginx HTTPS configuration
+      ansible.builtin.copy:
+        src: "{{ playbook_dir }}/docker/nginx/default.conf"
+        dest: /opt/cloud-1/nginx/default.conf
+        mode: '0644'
+      notify: Validate and reload Nginx
 
     - name: Check Worpress installation
       ansible.builtin.command:
