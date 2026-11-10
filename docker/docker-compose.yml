@@ -1,6 +1,7 @@
 services:
   nginx:
     image: nginx:alpine
+    restart: unless-stopped
     networks:
       - frontend
     volumes:
@@ -15,6 +16,7 @@ services:
 
   mariadb:
     image: mariadb:11.8
+    restart: unless-stopped
     networks:
       - backend
     volumes:
@@ -30,6 +32,7 @@ services:
   
   wordpress:
     image: wordpress:php8.3-fpm-alpine
+    restart: unless-stopped
     networks:
       - frontend
       - backend
@@ -61,6 +64,7 @@ services:
 
   phpmyadmin:
     image: phpmyadmin:5.2.3-apache
+    restart: unless-stopped
     networks:
       - frontend
       - backend
