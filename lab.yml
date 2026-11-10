@@ -17,34 +17,10 @@
       ansible.builtin.import_role:
         name: stack
 
-    - name: Install Certbot
-      ansible.builtin.apt:
-        name: certbot
-        state: present
-
-    - name: Obtain Cloud-1 TLS certificate
-      ansible.builtin.command:
-        argv:
-          - certbot
-          - certonly
-          - --webroot
-          - -w
-          - /opt/cloud-1/acme
-          - -d
-          - cloud1-42project.duckdns.org
-          - --email
-          - "{{ vault_letsencrypt_email }}"
-          - --agree-tos
-          - --non-interactive
-        creates: /etc/letsencrypt/live/cloud1-42project.duckdns.org/fullchain.pem
-
-    - name: Activate Nginx HTTPS configuration
-      ansible.builtin.copy:
-        src: "{{ playbook_dir }}/docker/nginx/default.conf"
-        dest: /opt/cloud-1/nginx/default.conf
-        mode: '0644'
-      notify: Validate and reload Nginx
-
+    - name: Configure TLS and HTTPS
+      ansible.builtin.import_role:
+        name: tls
+    
     - name: Wait for MariaDB to accept SQL queries
       ansible.builtin.command:
         argv:
