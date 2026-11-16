@@ -12,15 +12,37 @@
       - -w
       - /opt/cloud-1/acme
       - -d
-      - cloud1-42project.duckdns.org
+      - "{{ site_domain }}"
       - --email
       - "{{ vault_letsencrypt_email }}"
       - --agree-tos
       - --non-interactive
-    creates: /etc/letsencrypt/live/cloud1-42project.duckdns.org/fullchain.pem
+    creates: "/etc/letsencrypt/live/{{ site_domain }}/fullchain.pem"
+
+- name: Create certificate renewal hook directory
+  ansible.builtin.file:
+    path: /etc/letsencrypt/renewal-hooks/deploy
+    state: directory
+    mode: '0755'
+
+- name: Reload Nginx after certificate renewal
+  ansible.builtin.copy:
+    content: |
+      #!/bin/sh
+      set -eu
+      docker exec cloud-1-nginx-1 nginx -t
+      docker exec cloud-1-nginx-1 nginx -s reload
+    dest: /etc/letsencrypt/renewal-hooks/deploy/cloud-1-nginx.sh
+    mode: '0755'
+
+- name: Enable automatic certificate renewal
+  ansible.builtin.systemd_service:
+    name: certbot.timer
+    enabled: true
+    state: started
 
 - name: Activate Nginx HTTPS configuration
-  ansible.builtin.copy:
+  ansible.builtin.template:
     src: "{{ playbook_dir }}/docker/nginx/default.conf"
     dest: /opt/cloud-1/nginx/default.conf
     mode: '0644'

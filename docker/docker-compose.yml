@@ -10,7 +10,6 @@ services:
       - ./acme:/var/www/acme:ro
       - /etc/letsencrypt:/etc/letsencrypt:ro
     ports:
-      - "127.0.0.1:8080:80"
       - "80:80"
       - "443:443"
 
@@ -71,7 +70,7 @@ services:
     environment:
       PMA_HOST: mariadb
       PMA_PORT: 3306
-      PMA_ABSOLUTE_URI: https://cloud1-42project.duckdns.org/phpmyadmin/
+      PMA_ABSOLUTE_URI: https://${SITE_DOMAIN:?Set SITE_DOMAIN in .env}/phpmyadmin/
 
 
 networks:

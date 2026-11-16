@@ -32,3 +32,9 @@
       - docker-buildx-plugin
       - docker-compose-plugin
     state: present
+
+- name: Enable and start Docker
+  ansible.builtin.systemd_service:
+    name: docker
+    enabled: true
+    state: started

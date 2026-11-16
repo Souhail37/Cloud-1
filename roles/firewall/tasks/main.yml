@@ -1,0 +1,26 @@
+- name: Install UFW
+  ansible.builtin.apt:
+    name: ufw
+    state: present
+
+- name: Read firewall status
+  ansible.builtin.command: ufw status verbose
+  register: ufw_status
+  changed_when: false
+
+- name: Allow required public TCP ports
+  ansible.builtin.command: "ufw allow {{ item }}/tcp"
+  loop:
+    - 22
+    - 80
+    - 443
+  register: ufw_allow
+  changed_when: "'Rules updated' in ufw_allow.stdout or 'Rules updated (v6)' in ufw_allow.stdout"
+
+- name: Deny other incoming connections
+  ansible.builtin.command: ufw default deny incoming
+  when: "'Default: deny (incoming)' not in ufw_status.stdout"
+
+- name: Enable firewall
+  ansible.builtin.command: ufw --force enable
+  when: "'Status: active' not in ufw_status.stdout"

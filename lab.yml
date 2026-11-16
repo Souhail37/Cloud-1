@@ -3,13 +3,24 @@
   hosts: wordpress_hosts
   tasks:
 
+    - name: Validate site domain
+      ansible.builtin.assert:
+        that:
+          - site_domain is match('^[a-zA-Z0-9][a-zA-Z0-9.-]*[a-zA-Z0-9]$')
+          - site_domain | length <= 253
+        fail_msg: Set site_domain to a DNS name without a scheme or path.
+
     - name: Configure Docker environment
       ansible.builtin.import_role:
         name: docker
 
+    - name: Restrict public ports
+      ansible.builtin.import_role:
+        name: firewall
+
     - name: Check if Cloud-1 TLS certificate exists
       ansible.builtin.stat:
-        path: /etc/letsencrypt/live/cloud1-42project.duckdns.org/fullchain.pem
+        path: "/etc/letsencrypt/live/{{ site_domain }}/fullchain.pem"
         follow: true
       register: tls_cert
 

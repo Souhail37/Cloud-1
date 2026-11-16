@@ -10,6 +10,12 @@
     dest: /opt/cloud-1/docker-compose.yml
     mode: '0644'
 
+- name: Set Compose site domain
+  ansible.builtin.copy:
+    content: "SITE_DOMAIN={{ site_domain }}\n"
+    dest: /opt/cloud-1/.env
+    mode: '0644'
+
 - name: Create Cloud-1 secrets directory
   ansible.builtin.file:
     path: /opt/cloud-1/secrets
@@ -61,8 +67,15 @@
     creates: /opt/cloud-1/nginx/.htpasswd
   no_log: true
 
+- name: Allow Nginx to read phpMyAdmin access credentials
+  ansible.builtin.file:
+    path: /opt/cloud-1/nginx/.htpasswd
+    owner: root
+    group: root
+    mode: '0644'
+
 - name: Deploy Nginx configuration
-  ansible.builtin.copy:
+  ansible.builtin.template:
     src: "{{ playbook_dir }}/docker/nginx/{{ 'default.conf' if tls_cert.stat.exists else 'bootstrap.conf' }}"
     dest: /opt/cloud-1/nginx/default.conf
     mode: '0644'
